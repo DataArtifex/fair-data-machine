@@ -1,0 +1,26 @@
+[tool.dartfx.python]
+version = "system"
+manager = "uv"
+venv_path = "/home/dartfx/.venvs/dartfx"
+install_groups = ["core", "data", "dartfx"]
+
+[tool.dartfx.python.packages]
+core = [
+  "ipython",
+  "jupyterlab",
+]
+
+data = [
+  "duckdb",
+  "psycopg[binary]",
+  "pandas",
+  "pyarrow",
+]   
+
+dartfx = [
+  "dartfx-ddi @ git+https://github.com/DataArtifex/ddi-toolkit.git@main",
+  "dartfx-rdf @ git+https://github.com/DataArtifex/rdf-toolkit.git@main",
+]
+
+optional = []
+
