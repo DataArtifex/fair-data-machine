@@ -1,3 +1,6 @@
+> **Early Prototype — For Testing Purposes Only**
+> This project is in an early prototype stage. It is not production-ready and is intended for testing and experimentation only. Expect breaking changes, incomplete features, and limited documentation.
+
 # FAIR Data Machine
 
 Welcome to the High-Value Data FAIRification machine.
