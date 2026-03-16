@@ -1,0 +1,13 @@
+[project]
+name = "fair-data-machine-custom"
+version = "0.1.0"
+dependencies = [
+  "dartfx-ddi @ git+https://github.com/DataArtifex/ddi-toolkit.git@main",
+  "dartfx-rdf @ git+https://github.com/DataArtifex/rdf-toolkit.git@main",
+  "duckdb",
+  "ipython",
+  "jupyterlab",
+  "pandas",
+  "psycopg[binary]",
+  "pyarrow",
+]

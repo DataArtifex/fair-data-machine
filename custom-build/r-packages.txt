@@ -1,0 +1,15 @@
+# Custom R package manifest
+# One package name per line.
+
+DBI
+RPostgres
+arrow
+data.table
+duckdb
+ellmer
+jsonlite
+rollama
+sdcMicro
+sf
+terra
+tidyverse

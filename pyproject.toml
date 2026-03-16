@@ -1,26 +1,10 @@
-[tool.dartfx.python]
-version = "system"
-manager = "uv"
-venv_path = "/home/dartfx/.venvs/dartfx"
-install_groups = ["core", "data", "dartfx"]
+[project]
+name = "fair-data-machine-builder"
+version = "0.1.0"
+description = "UI and Generator for creating custom FAIR Data Machine Docker images"
+requires-python = ">=3.12"
+dependencies = ["gradio>=4.0.0"]
 
-[tool.dartfx.python.packages]
-core = [
-  "ipython",
-  "jupyterlab",
-]
-
-data = [
-  "duckdb",
-  "psycopg[binary]",
-  "pandas",
-  "pyarrow",
-]   
-
-dartfx = [
-  "dartfx-ddi @ git+https://github.com/DataArtifex/ddi-toolkit.git@main",
-  "dartfx-rdf @ git+https://github.com/DataArtifex/rdf-toolkit.git@main",
-]
-
-optional = []
-
+[tool.uv]
+managed = true
+dev-dependencies = []

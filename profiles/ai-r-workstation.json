@@ -1,0 +1,61 @@
+{
+  "version": "1.0.0",
+  "core": [
+    "python",
+    "node",
+    "postgres",
+    "duckdb",
+    "qsv",
+    "visidata",
+    "readstat",
+    "qlever"
+  ],
+  "optional": [
+    "gemini",
+    "r",
+    "claude",
+    "oxygraph"
+  ],
+  "packages": {
+    "python": {
+      "preset": [
+        "ipython",
+        "jupyterlab",
+        "duckdb",
+        "psycopg[binary]",
+        "pandas",
+        "pyarrow",
+        "dartfx-ddi",
+        "dartfx-rdf"
+      ],
+      "custom": ""
+    },
+    "node": {
+      "preset": [],
+      "custom": ""
+    },
+    "r": {
+      "preset": [
+        "tidyverse",
+        "data.table",
+        "arrow",
+        "DBI",
+        "duckdb",
+        "RPostgres",
+        "jsonlite",
+        "sdcMicro",
+        "sf",
+        "terra",
+        "ellmer",
+        "rollama"
+      ],
+      "custom": ""
+    },
+    "postgres": {
+      "preset": [
+        "pgvector"
+      ],
+      "custom": ""
+    }
+  }
+}

@@ -1,0 +1,422 @@
+{
+  "ubuntu-base": {
+    "name": "Ubuntu Base",
+    "url": "https://ubuntu.com/",
+    "category": "foundation",
+    "system_packages": [
+      "curl",
+      "wget",
+      "git",
+      "build-essential",
+      "software-properties-common",
+      "apt-transport-https",
+      "ca-certificates",
+      "gnupg",
+      "lsb-release",
+      "jq",
+      "tmux",
+      "tree",
+      "unzip",
+      "zstd",
+      "net-tools",
+      "htop",
+      "ncdu",
+      "sudo",
+      "supervisor",
+      "bash-completion",
+      "make",
+      "pkg-config",
+      "m4",
+      "automake",
+      "libtool"
+    ],
+    "install": [
+      "useradd -m -s /bin/bash dartfx",
+      "echo \"dartfx:dartfx\" | chpasswd",
+      "usermod -aG sudo dartfx",
+      "echo \"dartfx ALL=(ALL) NOPASSWD:ALL\" >/etc/sudoers.d/dartfx",
+      "chmod 0440 /etc/sudoers.d/dartfx",
+      "mkdir -p /var/log/supervisor /var/run /opt/dartfx /home/dartfx/workspace",
+      "chown dartfx:dartfx /opt/dartfx /home/dartfx/workspace"
+    ]
+  },
+  "python": {
+    "name": "Python 3.12",
+    "url": "https://www.python.org/",
+    "category": "language",
+    "is_default": true,
+    "system_packages": [
+      "python3",
+      "python3-venv",
+      "python3-dev"
+    ],
+    "env": {
+      "DARTFX_INCLUDE_PYTHON": "true"
+    },
+    "install": [
+      "curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR=/usr/local/bin sh"
+    ],
+    "package_manager": "uv",
+    "manifest": "pyproject.toml",
+    "sub_selection": {
+      "label": "Python Packages",
+      "options": [
+        {
+          "name": "ipython",
+          "import_as": "IPython"
+        },
+        {
+          "name": "jupyterlab"
+        },
+        {
+          "name": "duckdb"
+        },
+        {
+          "name": "psycopg[binary]"
+        },
+        {
+          "name": "pandas"
+        },
+        {
+          "name": "pyarrow"
+        },
+        {
+          "name": "dartfx-ddi",
+          "url": "git+https://github.com/DataArtifex/ddi-toolkit.git@main",
+          "import_as": "dartfx.ddi"
+        },
+        {
+          "name": "dartfx-rdf",
+          "url": "git+https://github.com/DataArtifex/rdf-toolkit.git@main",
+          "import_as": "dartfx.rdf"
+        }
+      ]
+    },
+    "test": {
+      "commands": [
+        "python3 --version",
+        "uv --version"
+      ]
+    }
+  },
+  "node": {
+    "name": "Node.js (LTS)",
+    "url": "https://nodejs.org/",
+    "category": "language",
+    "is_default": true,
+    "env": {
+      "DARTFX_INCLUDE_NODE": "true"
+    },
+    "install": [
+      "su - dartfx -c 'export NVM_DIR=\"$HOME/.nvm\"; curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash; source \"$NVM_DIR/nvm.sh\"; nvm install --lts; nvm alias default lts/*; npm install -g pnpm'"
+    ],
+    "sub_selection": {
+      "label": "Node.js Packages",
+      "options": []
+    },
+    "test": {
+      "commands": [
+        "su - dartfx -c 'export NVM_DIR=\"$HOME/.nvm\"; source \"$NVM_DIR/nvm.sh\"; node --version && pnpm --version'"
+      ]
+    }
+  },
+  "r": {
+    "name": "R Statistical Language",
+    "url": "https://www.r-project.org/",
+    "category": "language",
+    "system_packages": [
+      "r-base",
+      "r-base-dev"
+    ],
+    "manifest": "r-packages.txt",
+    "env": {
+      "DARTFX_INCLUDE_R": "true"
+    },
+    "test": {
+      "commands": [
+        "R --version",
+        "Rscript --version"
+      ]
+    },
+    "sub_selection": {
+      "label": "R Packages",
+      "options": [
+        {
+          "name": "tidyverse"
+        },
+        {
+          "name": "data.table"
+        },
+        {
+          "name": "arrow"
+        },
+        {
+          "name": "DBI"
+        },
+        {
+          "name": "duckdb"
+        },
+        {
+          "name": "RPostgres"
+        },
+        {
+          "name": "jsonlite"
+        },
+        {
+          "name": "sdcMicro"
+        },
+        {
+          "name": "sf"
+        },
+        {
+          "name": "terra"
+        },
+        {
+          "name": "ellmer"
+        },
+        {
+          "name": "rollama"
+        }
+      ]
+    }
+  },
+  "postgres": {
+    "name": "PostgreSQL+",
+    "url": "https://www.postgresql.org/",
+    "category": "database",
+    "is_default": true,
+    "system_packages": [
+      "postgresql",
+      "postgresql-client",
+      "postgresql-contrib",
+      "postgresql-server-dev-all"
+    ],
+    "env": {
+      "DARTFX_INCLUDE_POSTGRES": "true"
+    },
+    "persistence_volumes": [
+      {
+        "path": "/var/lib/postgresql/data",
+        "description": "Relational database data"
+      }
+    ],
+    "test": {
+      "commands": [
+        "psql --version",
+        "pg_config --pkglibdir"
+      ]
+    },
+    "sub_selection": {
+      "label": "Postgres Extensions",
+      "options": [
+        {
+          "name": "pgvector",
+          "install": [
+            "git clone --depth 1 https://github.com/pgvector/pgvector.git /tmp/pgvector",
+            "make -C /tmp/pgvector",
+            "make -C /tmp/pgvector install",
+            "rm -rf /tmp/pgvector"
+          ],
+          "test": {
+            "commands": [
+              "pg_config --pkglibdir | xargs -I{} test -f '{}/vector.so'"
+            ]
+          }
+        },
+        {
+          "name": "postgis",
+          "selected": false,
+          "system_packages": [
+            "postgis",
+            "postgresql-16-postgis-3"
+          ],
+          "test": {
+            "commands": [
+              "psql --version && echo 'SELECT postgis_version();' | psql -Atq postgres || true"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "duckdb": {
+    "name": "DuckDB CLI",
+    "url": "https://duckdb.org/",
+    "category": "database",
+    "is_default": true,
+    "env": {
+      "DARTFX_INCLUDE_DUCKDB": "true"
+    },
+    "install": [
+      "arch=$(dpkg --print-architecture); case \"$arch\" in amd64) duck_arch=\"linux-amd64\" ;; arm64) duck_arch=\"linux-arm64\" ;; *) exit 1 ;; esac; version=$(curl -fsSL https://api.github.com/repos/duckdb/duckdb/releases/latest | jq -r '.tag_name'); curl -fsSL \"https://github.com/duckdb/duckdb/releases/download/${version}/duckdb_cli-${duck_arch}.zip\" -o /tmp/duckdb.zip; unzip /tmp/duckdb.zip -d /usr/local/bin; chmod +x /usr/local/bin/duckdb; rm -f /tmp/duckdb.zip"
+    ],
+    "test": {
+      "commands": [
+        "duckdb --version"
+      ]
+    }
+  },
+  "qsv": {
+    "name": "QSV",
+    "url": "https://github.com/dathere/qsv",
+    "category": "tool",
+    "is_default": true,
+    "env": {
+      "DARTFX_INCLUDE_QSV": "true"
+    },
+    "install": [
+      "arch=$(dpkg --print-architecture); if [[ \"$arch\" == \"amd64\" ]]; then wget -O - https://dathere.github.io/qsv-deb-releases/qsv-deb.gpg | gpg --dearmor -o /usr/share/keyrings/qsv-deb.gpg; echo \"deb [signed-by=/usr/share/keyrings/qsv-deb.gpg] https://dathere.github.io/qsv-deb-releases ./\" >/etc/apt/sources.list.d/qsv.list; apt-get update; apt-get install -y --no-install-recommends qsv; elif [[ \"$arch\" == \"arm64\" ]]; then version=$(curl -fsSL https://api.github.com/repos/dathere/qsv/releases/latest | jq -r '.tag_name'); curl -fsSL \"https://github.com/dathere/qsv/releases/download/${version}/qsv-${version}-aarch64-unknown-linux-gnu.zip\" -o /tmp/qsv.zip; unzip /tmp/qsv.zip -d /tmp/qsv; install -m 0755 /tmp/qsv/qsv /usr/local/bin/qsv; rm -rf /tmp/qsv /tmp/qsv.zip; fi"
+    ],
+    "test": {
+      "commands": [
+        "qsv --version"
+      ]
+    }
+  },
+  "visidata": {
+    "name": "VisiData",
+    "url": "https://www.visidata.org/",
+    "category": "tool",
+    "is_default": true,
+    "system_packages": [
+      "visidata"
+    ],
+    "env": {
+      "DARTFX_INCLUDE_VISIDATA": "true"
+    },
+    "test": {
+      "commands": [
+        "vd --version"
+      ]
+    }
+  },
+  "readstat": {
+    "name": "ReadStat",
+    "url": "https://github.com/WizardMac/ReadStat",
+    "category": "tool",
+    "is_default": true,
+    "env": {
+      "DARTFX_INCLUDE_READSTAT": "true"
+    },
+    "install": [
+      "git clone --depth 1 https://github.com/WizardMac/ReadStat.git /tmp/ReadStat; cd /tmp/ReadStat; mkdir -p m4; ./autogen.sh; ./configure; make -j$(nproc); make install; ldconfig; rm -rf /tmp/ReadStat"
+    ],
+    "test": {
+      "commands": [
+        "readstat --version"
+      ]
+    }
+  },
+  "qlever": {
+    "name": "QLever (SPARQL Engine)",
+    "url": "https://qlever.cs.uni-freiburg.de/",
+    "category": "database",
+    "is_default": true,
+    "install": [
+      "arch=$(dpkg --print-architecture); if [[ \"$arch\" == \"amd64\" ]]; then wget -qO - https://packages.qlever.dev/pub.asc | gpg --dearmor -o /usr/share/keyrings/qlever.gpg; codename=$(. /etc/os-release && echo \"${UBUNTU_CODENAME:-$VERSION_CODENAME}\"); echo \"deb [arch=amd64 signed-by=/usr/share/keyrings/qlever.gpg] https://packages.qlever.dev/ ${codename} main\" >/etc/apt/sources.list.d/qlever.list; apt-get update; apt-get install -y --no-install-recommends qlever; else python3 -m venv /opt/qlever/venv; /opt/qlever/venv/bin/pip install --no-cache-dir qlever; ln -sf /opt/qlever/venv/bin/qlever /usr/local/bin/qlever; fi"
+    ],
+    "env": {
+      "DARTFX_INCLUDE_QLEVER": "true"
+    },
+    "test": {
+      "commands": [
+        "qlever --version"
+      ]
+    }
+  },
+  "oxygraph": {
+    "name": "Oxygraph",
+    "url": "https://oxigraph.org/",
+    "category": "database",
+    "install": [
+      "arch=$(dpkg --print-architecture); case \"$arch\" in amd64) oxy_asset_arch=\"x86_64_linux_gnu\" ;; arm64) oxy_asset_arch=\"aarch64_linux_gnu\" ;; *) exit 1 ;; esac; version=$(curl -fsSL https://api.github.com/repos/oxigraph/oxigraph/releases/latest | jq -r '.tag_name'); asset=\"oxigraph_${version}_${oxy_asset_arch}\"; url=\"https://github.com/oxigraph/oxigraph/releases/download/${version}/${asset}\"; mkdir -p /opt/oxygraph; curl -fsSL \"${url}\" -o /opt/oxygraph/oxigraph; chmod +x /opt/oxygraph/oxigraph; ln -sf /opt/oxygraph/oxigraph /usr/local/bin/oxigraph"
+    ],
+    "env": {
+      "DARTFX_INCLUDE_OXYGRAPH": "true"
+    },
+    "test": {
+      "commands": [
+        "oxigraph --version"
+      ]
+    }
+  },
+  "nginx-proxy": {
+    "name": "Nginx Proxy Manager",
+    "url": "https://nginxproxymanager.com/",
+    "category": "tool",
+    "dependencies": [
+      "node"
+    ],
+    "env": {
+      "DARTFX_INCLUDE_NGINX_PROXY": "true"
+    },
+    "install": [
+      "echo 'Nginx Proxy Manager placeholder - installation requires full stack configuration'"
+    ]
+  },
+  "claude": {
+    "name": "Claude Code CLI",
+    "url": "https://anthropic.com/",
+    "category": "ai",
+    "dependencies": [
+      "node"
+    ],
+    "env": {
+      "DARTFX_INCLUDE_CLAUDE": "true"
+    },
+    "install": [
+      "su - dartfx -c 'export NVM_DIR=\"$HOME/.nvm\"; source \"$NVM_DIR/nvm.sh\"; npm install -g @anthropic-ai/claude-code'"
+    ],
+    "test": {
+      "commands": [
+        "su - dartfx -c 'export NVM_DIR=\"$HOME/.nvm\"; source \"$NVM_DIR/nvm.sh\"; claude --version'"
+      ]
+    }
+  },
+  "gemini": {
+    "name": "Gemini CLI",
+    "url": "https://deepmind.google/technologies/gemini/",
+    "category": "ai",
+    "dependencies": [
+      "node"
+    ],
+    "env": {
+      "DARTFX_INCLUDE_GEMINI": "true"
+    },
+    "install": [
+      "su - dartfx -c 'export NVM_DIR=\"$HOME/.nvm\"; source \"$NVM_DIR/nvm.sh\"; npm install -g @google/gemini-cli; mkdir -p \"$HOME/.gemini\"'"
+    ],
+    "test": {
+      "commands": [
+        "su - dartfx -c 'export NVM_DIR=\"$HOME/.nvm\"; source \"$NVM_DIR/nvm.sh\"; gemini --version'"
+      ]
+    }
+  },
+  "ollama": {
+    "name": "Ollama + ollama-code",
+    "url": "https://ollama.com/",
+    "category": "ai",
+    "dependencies": [
+      "node"
+    ],
+    "env": {
+      "DARTFX_INCLUDE_OLLAMA": "true"
+    },
+    "persistence_volumes": [
+      {
+        "path": "/usr/share/ollama/.ollama",
+        "description": "Local LLM models"
+      }
+    ],
+    "install": [
+      "arch=$(dpkg --print-architecture); curl -fsSL \"https://ollama.com/download/ollama-linux-${arch}.tgz\" -o /tmp/ollama.tgz; tar -C /usr -xzf /tmp/ollama.tgz; rm /tmp/ollama.tgz",
+      "su - dartfx -c 'export NVM_DIR=\"$HOME/.nvm\"; source \"$NVM_DIR/nvm.sh\"; npm install -g @tcsenpai/ollama-code'"
+    ],
+    "test": {
+      "commands": [
+        "ollama --version",
+        "su - dartfx -c 'export NVM_DIR=\"$HOME/.nvm\"; source \"$NVM_DIR/nvm.sh\"; ollama-code --help'"
+      ]
+    }
+  }
+}
