@@ -47,6 +47,10 @@ The machine is powered by a central **Component Registry** (`config/components.j
 ### AI Assistants (Optional)
 - **Claude Code CLI**: Anthropic's terminal-based AI coding assistant.
 - **Gemini CLI**: Google's AI assistant for automation and scripting.
+- **Ollama + ollama-code**: Local LLM runtime for private, offline AI assistance.
+
+### Infrastructure (Optional)
+- **Nginx Proxy Manager**: Reverse proxy and TLS management for controlled service access.
 
 ---
 
