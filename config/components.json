@@ -6,7 +6,6 @@
     "system_packages": [
       "curl",
       "wget",
-      "git",
       "build-essential",
       "software-properties-common",
       "apt-transport-https",
@@ -40,6 +39,39 @@
       "chown dartfx:dartfx /opt/dartfx /home/dartfx/workspace"
     ]
   },
+  "github-cli": {
+    "name": "GitHub CLI",
+    "url": "https://cli.github.com/",
+    "category": "tool",
+    "is_default": true,
+    "install": [
+      "mkdir -p -m 755 /etc/apt/keyrings",
+      "curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null",
+      "chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg",
+      "echo \"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main\" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null",
+      "apt-get update",
+      "apt-get install -y gh"
+    ],
+    "test": {
+      "commands": [
+        "gh --version"
+      ]
+    }
+  },
+  "git": {
+    "name": "Git",
+    "url": "https://git-scm.com/",
+    "category": "tool",
+    "is_default": true,
+    "system_packages": [
+      "git"
+    ],
+    "test": {
+      "commands": [
+        "git --version"
+      ]
+    }
+  },
   "python": {
     "name": "Python 3.12",
     "url": "https://www.python.org/",
@@ -53,6 +85,9 @@
     "env": {
       "DARTFX_INCLUDE_PYTHON": "true"
     },
+    "dependencies": [
+      "git"
+    ],
     "install": [
       "curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR=/usr/local/bin sh"
     ],
@@ -194,6 +229,9 @@
     "env": {
       "DARTFX_INCLUDE_POSTGRES": "true"
     },
+    "dependencies": [
+      "git"
+    ],
     "persistence_volumes": [
       {
         "path": "/var/lib/postgresql/data",
@@ -298,6 +336,9 @@
     "env": {
       "DARTFX_INCLUDE_READSTAT": "true"
     },
+    "dependencies": [
+      "git"
+    ],
     "install": [
       "git clone --depth 1 https://github.com/WizardMac/ReadStat.git /tmp/ReadStat; cd /tmp/ReadStat; mkdir -p m4; ./autogen.sh; ./configure; make -j$(nproc); make install; ldconfig; rm -rf /tmp/ReadStat"
     ],

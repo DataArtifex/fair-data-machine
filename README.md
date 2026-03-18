@@ -44,6 +44,10 @@ The machine is powered by a central **Component Registry** (`config/components.j
 - **QSV**: High-performance CSV toolkit.
 - **ReadStat**: Interoperability for legacy statistical formats (SPSS/Stata/SAS).
 
+### Workflow & Version Control
+- **Git**: Distributed version control system.
+- **GitHub CLI**: Official command-line interface for GitHub.
+
 ### AI Assistants (Optional)
 - **Claude Code CLI**: Anthropic's terminal-based AI coding assistant.
 - **Gemini CLI**: Google's AI assistant for automation and scripting.
