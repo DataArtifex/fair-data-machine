@@ -32,12 +32,23 @@ class DockerfileGenerator:
         
         return resolved
 
+    def _get_package_list(self, packages_data):
+        pkgs = []
+        if isinstance(packages_data, list):
+            pkgs = packages_data
+        elif isinstance(packages_data, dict):
+            pkgs = packages_data.get("preset", [])
+            custom = packages_data.get("custom", "").strip()
+            if custom:
+                pkgs.extend([p.strip() for p in custom.replace(",", " ").split() if p.strip()])
+        return sorted(list(set(pkgs)))
+
     def _generate_pyproject_toml(self, packages, output_path):
-        # Build lookup for URLs from registry
         pkg_metadata = {}
         if "python" in self.registry:
             for opt in self.registry["python"].get("sub_selection", {}).get("options", []):
-                pkg_metadata[opt["name"]] = opt.get("url")
+                if opt.get("url"):
+                    pkg_metadata[opt["name"]] = opt["url"]
 
         content = [
             "[project]",
@@ -46,7 +57,7 @@ class DockerfileGenerator:
             "dependencies = ["
         ]
         
-        for pkg in sorted(packages):
+        for pkg in self._get_package_list(packages):
             url = pkg_metadata.get(pkg)
             if url:
                 entry = f"{pkg} @ {url}"
@@ -65,19 +76,16 @@ class DockerfileGenerator:
             "# One package name per line.",
             ""
         ]
-        for pkg in sorted(packages):
+        for pkg in self._get_package_list(packages):
             content.append(pkg)
             
         with open(output_path / "r-packages.txt", "w") as f:
             f.write("\n".join(content))
 
     def _generate_node_packages_txt(self, packages, output_path):
-        content = []
-        for pkg in sorted(packages):
-            content.append(pkg)
-            
+        final_pkgs = self._get_package_list(packages)
         with open(output_path / "node_packages.txt", "w") as f:
-            f.write("\n".join(content))
+            f.write("\n".join(final_pkgs))
 
     def _generate_readme(self, resolved_ids, package_selection, output_path):
         content = [
@@ -105,9 +113,9 @@ class DockerfileGenerator:
                 line = f"- **{name}**"
                 
             if comp_id in package_selection:
-                pkgs = package_selection[comp_id]
+                pkgs = self._get_package_list(package_selection[comp_id])
                 if pkgs:
-                    line += f": {', '.join(sorted(pkgs))}"
+                    line += f": {', '.join(pkgs)}"
             content.append(line)
             
         content.extend([
@@ -213,11 +221,15 @@ class DockerfileGenerator:
                 content.append("")
 
         # Add Sub-selection (Package) Tests
-        for comp_id, pkgs in package_selection.items():
+        for comp_id, pkgs_data in package_selection.items():
             comp = self.registry.get(comp_id)
             if not comp or "sub_selection" not in comp:
                 continue
             
+            pkgs = self._get_package_list(pkgs_data)
+            if not pkgs:
+                continue
+
             # Check individual option tests if any (e.g. pgvector)
             for opt in comp["sub_selection"]["options"]:
                 if opt["name"] in pkgs and "test" in opt:
@@ -227,7 +239,7 @@ class DockerfileGenerator:
                     content.append("")
 
             # Bulk package imports for Python
-            if comp_id == "python" and pkgs:
+            if comp_id == "python":
                 content.append("# Python library imports")
                 content.append("/home/dartfx/.venvs/dartfx/bin/python - <<'PY'")
                 content.append("import sys, importlib")
@@ -259,14 +271,14 @@ class DockerfileGenerator:
                 content.append("")
 
             # Bulk package check for Node
-            if comp_id == "node" and pkgs:
+            if comp_id == "node":
                 content.append("# Node.js package check")
-                for pkg in sorted(pkgs):
-                    content.append(f"su - dartfx -c 'export NVM_DIR=\"$HOME/.nvm\"; source \"$NVM_DIR/nvm.sh\"; pnpm list -g {pkg} > /dev/null' && echo '[ok] node package: {pkg}' || echo '[error] missing node package: {pkg}'")
+                for pkg in pkgs:
+                    content.append(f"su - dartfx -c 'export NVM_DIR=\"$HOME/.nvm\"; source \"$NVM_DIR/nvm.sh\"; export PNPM_HOME=\"$HOME/.local/share/pnpm\"; export PATH=\"$PNPM_HOME:$PATH\"; pnpm list -g {pkg} > /dev/null' && echo '[ok] node package: {pkg}' || echo '[error] missing node package: {pkg}'")
                 content.append("")
 
             # Bulk package check for R
-            if comp_id == "r" and pkgs:
+            if comp_id == "r":
                 content.append("# R library installation check")
                 pkg_list = " ".join([f'"{p}"' for p in pkgs])
                 content.append(f"Rscript -e 'pkgs <- c({pkg_list.replace(' ', ', ')}); missing <- pkgs[!vapply(pkgs, requireNamespace, logical(1), quietly = TRUE)]; if(length(missing) > 0) {{ stop(\"Missing R packages: \", paste(missing, collapse=\", \")) }} else {{ cat(\"[ok] all R packages found\\n\") }}'")
@@ -411,9 +423,14 @@ class DockerfileGenerator:
                 dockerfile.append("RUN Rscript -e 'pkgs <- readLines(\"/opt/dartfx/r-packages.txt\"); install.packages(pkgs, repos=\"https://cloud.r-project.org\")'")
 
             if comp_id == "node" and (output_path / "node_packages.txt").exists():
-                dockerfile.append("# Node: Install global packages")
-                dockerfile.append("COPY node_packages.txt /opt/dartfx/node_packages.txt")
-                dockerfile.append("RUN su - dartfx -c 'export NVM_DIR=\"$HOME/.nvm\"; source \"$NVM_DIR/nvm.sh\"; xargs pnpm install -g < /opt/dartfx/node_packages.txt'")
+                # Check if file is empty to avoid pnpm add -g errors
+                with open(output_path / "node_packages.txt", "r") as f:
+                    pkgs_content = f.read().strip()
+                
+                if pkgs_content:
+                    dockerfile.append("# Node: Install global packages")
+                    dockerfile.append("COPY node_packages.txt /opt/dartfx/node_packages.txt")
+                    dockerfile.append("RUN su - dartfx -c 'export NVM_DIR=\"$HOME/.nvm\"; source \"$NVM_DIR/nvm.sh\"; export PNPM_HOME=\"$HOME/.local/share/pnpm\"; export PATH=\"$PNPM_HOME:$PATH\"; pnpm setup; xargs pnpm add -g < /opt/dartfx/node_packages.txt'")
             
             dockerfile.append("")
 

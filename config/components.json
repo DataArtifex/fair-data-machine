@@ -108,7 +108,7 @@
       "DARTFX_INCLUDE_NODE": "true"
     },
     "install": [
-      "su - dartfx -c 'export NVM_DIR=\"$HOME/.nvm\"; curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash; source \"$NVM_DIR/nvm.sh\"; nvm install --lts; nvm alias default lts/*; npm install -g pnpm'"
+      "su - dartfx -c 'export NVM_DIR=\"$HOME/.nvm\"; curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash; source \"$NVM_DIR/nvm.sh\"; nvm install --lts; nvm alias default lts/*; npm install -g pnpm; pnpm setup'"
     ],
     "sub_selection": {
       "label": "Node.js Packages",
@@ -343,6 +343,7 @@
   "nginx-proxy": {
     "name": "Nginx Proxy Manager",
     "url": "https://nginxproxymanager.com/",
+    "description": "Reverse proxy and TLS management utility for controlled access to FAIR data services.",
     "category": "tool",
     "dependencies": [
       "node"
@@ -365,11 +366,11 @@
       "DARTFX_INCLUDE_CLAUDE": "true"
     },
     "install": [
-      "su - dartfx -c 'export NVM_DIR=\"$HOME/.nvm\"; source \"$NVM_DIR/nvm.sh\"; npm install -g @anthropic-ai/claude-code'"
+      "su - dartfx -c 'export NVM_DIR=\"$HOME/.nvm\"; source \"$NVM_DIR/nvm.sh\"; export PNPM_HOME=\"$HOME/.local/share/pnpm\"; export PATH=\"$PNPM_HOME:$PATH\"; pnpm add -g @anthropic-ai/claude-code'"
     ],
     "test": {
       "commands": [
-        "su - dartfx -c 'export NVM_DIR=\"$HOME/.nvm\"; source \"$NVM_DIR/nvm.sh\"; claude --version'"
+        "su - dartfx -c 'export NVM_DIR=\"$HOME/.nvm\"; source \"$NVM_DIR/nvm.sh\"; export PNPM_HOME=\"$HOME/.local/share/pnpm\"; export PATH=\"$PNPM_HOME:$PATH\"; claude --version'"
       ]
     }
   },
@@ -384,17 +385,18 @@
       "DARTFX_INCLUDE_GEMINI": "true"
     },
     "install": [
-      "su - dartfx -c 'export NVM_DIR=\"$HOME/.nvm\"; source \"$NVM_DIR/nvm.sh\"; npm install -g @google/gemini-cli; mkdir -p \"$HOME/.gemini\"'"
+      "su - dartfx -c 'export NVM_DIR=\"$HOME/.nvm\"; source \"$NVM_DIR/nvm.sh\"; export PNPM_HOME=\"$HOME/.local/share/pnpm\"; export PATH=\"$PNPM_HOME:$PATH\"; pnpm add -g @google/gemini-cli; mkdir -p \"$HOME/.gemini\"'"
     ],
     "test": {
       "commands": [
-        "su - dartfx -c 'export NVM_DIR=\"$HOME/.nvm\"; source \"$NVM_DIR/nvm.sh\"; gemini --version'"
+        "su - dartfx -c 'export NVM_DIR=\"$HOME/.nvm\"; source \"$NVM_DIR/nvm.sh\"; export PNPM_HOME=\"$HOME/.local/share/pnpm\"; export PATH=\"$PNPM_HOME:$PATH\"; gemini --version'"
       ]
     }
   },
   "ollama": {
     "name": "Ollama + ollama-code",
     "url": "https://ollama.com/",
+    "description": "Local LLM runtime for private, offline AI assistance with integrated coding tools.",
     "category": "ai",
     "dependencies": [
       "node"
@@ -410,12 +412,12 @@
     ],
     "install": [
       "arch=$(dpkg --print-architecture); curl -fsSL \"https://ollama.com/download/ollama-linux-${arch}.tgz\" -o /tmp/ollama.tgz; tar -C /usr -xzf /tmp/ollama.tgz; rm /tmp/ollama.tgz",
-      "su - dartfx -c 'export NVM_DIR=\"$HOME/.nvm\"; source \"$NVM_DIR/nvm.sh\"; npm install -g @tcsenpai/ollama-code'"
+      "su - dartfx -c 'export NVM_DIR=\"$HOME/.nvm\"; source \"$NVM_DIR/nvm.sh\"; export PNPM_HOME=\"$HOME/.local/share/pnpm\"; export PATH=\"$PNPM_HOME:$PATH\"; pnpm add -g @tcsenpai/ollama-code'"
     ],
     "test": {
       "commands": [
         "ollama --version",
-        "su - dartfx -c 'export NVM_DIR=\"$HOME/.nvm\"; source \"$NVM_DIR/nvm.sh\"; ollama-code --help'"
+        "su - dartfx -c 'export NVM_DIR=\"$HOME/.nvm\"; source \"$NVM_DIR/nvm.sh\"; export PNPM_HOME=\"$HOME/.local/share/pnpm\"; export PATH=\"$PNPM_HOME:$PATH\"; ollama-code --help'"
       ]
     }
   }
